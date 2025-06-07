@@ -18,7 +18,7 @@ class Tipcalculatormodel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateTipPercentage(double tipPercentage) {
+void updateTipPercentage(double tipPercentage) {
     _tipPercentage = tipPercentage;
     notifyListeners();
   }

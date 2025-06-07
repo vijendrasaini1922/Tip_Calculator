@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:utip/providers/ThemeProvider.dart';
 import 'package:utip/providers/TipCalculatorModel.dart';
 import 'package:utip/widgets/bill_amount_field.dart';
 import 'package:utip/widgets/tip_slider.dart';
@@ -8,8 +9,11 @@ import 'widgets/person_count.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => Tipcalculatormodel(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => Tipcalculatormodel()),
+        ChangeNotifierProvider(create: (context) => Themeprovider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -20,15 +24,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeModel = Provider.of<Themeprovider>(context);
 
     return MaterialApp(
       title: 'UTip Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 59, 22, 225),
-        ),
-        useMaterial3: true,
-      ),
+      // theme: ThemeData(
+      //   colorScheme: ColorScheme.fromSeed(
+      //     seedColor: const Color.fromARGB(255, 59, 22, 225),
+      //   ),
+      //   useMaterial3: true,
+      // ),
+      theme: themeModel.currentTheme,
       home: const MyHomePage(title: 'UTip Home Page'),
     );
   }
@@ -48,6 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final model = Provider.of<Tipcalculatormodel>(context);
+    final themeModel = Provider.of<Themeprovider>(context);
 
     final style = theme.textTheme.titleMedium!.copyWith(
       color: theme.colorScheme.onPrimary,
@@ -66,12 +73,22 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         toolbarHeight: appBarSize,
         backgroundColor: theme.colorScheme.inversePrimary,
-        title: Center(
-          child: Text(
-            widget.title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
+        title: Row(
+          children: [
+            Text(
+              widget.title,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+          ],
         ),
+        actions: [
+          IconButton(
+            onPressed: () => themeModel.toggleTheme(),
+            icon: themeModel.isDarkMode
+                ? Icon(Icons.dark_mode_rounded)
+                : Icon(Icons.wb_sunny),
+          ),
+        ],
       ),
       body: Center(
         child: Padding(
@@ -118,13 +135,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     PersonWidget(
                       theme: theme,
                       totalPerson: totalPerson,
-                      onDecrement: (){
-                        if(totalPerson > 1){
-                          model.updatePersonCount(totalPerson-1);
+                      onDecrement: () {
+                        if (totalPerson > 1) {
+                          model.updatePersonCount(totalPerson - 1);
                         }
                       },
-                      onIncrement: (){
-                        model.updatePersonCount(totalPerson+1);
+                      onIncrement: () {
+                        model.updatePersonCount(totalPerson + 1);
                       },
                     ),
                     if (errorMsg.isNotEmpty)
